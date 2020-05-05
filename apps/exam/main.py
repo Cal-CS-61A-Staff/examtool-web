@@ -103,7 +103,7 @@ def index(request):
 
             exam_data = get_exam_dict(exam, db)
             exam_data = scramble(
-                "gobearkavifdgssdfsfdssgs",
+                email,
                 exam_data,
             )
 
