@@ -1,0 +1,11 @@
+node_modules/
+**/static/main.js
+.idea/
+creds.json
+/data/eqxams/
+/.firebase/
+/data/
+/temp/
+/out/
+/dist/
+/build/

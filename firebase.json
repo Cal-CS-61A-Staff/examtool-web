@@ -1,0 +1,25 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin/**",
+        "function": "exam-admin"
+      },
+      {
+        "source": "/admin/",
+        "function": "exam-admin"
+      },
+      {
+        "source": "/**",
+        "function": "exam-server"
+      }
+    ]
+
+  }
+}
