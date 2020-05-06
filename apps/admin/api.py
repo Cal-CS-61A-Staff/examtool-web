@@ -5,6 +5,7 @@ from flask import jsonify
 import requests
 
 import examtool.api.database as db
+import examtool.api.email as mail
 
 
 def handle_api_call(method, kwargs):
@@ -18,9 +19,12 @@ def handle_api_call(method, kwargs):
     if not is_admin(email, course):
         return "", 401
     try:
-        return jsonify(db.__dict__[method](**kwargs))
-    except:
-        return "", 500
+        if method == "send_email":
+            return jsonify(mail.__dict__[method](**kwargs))
+        else:
+            return jsonify(db.__dict__[method](**kwargs))
+    except Exception as e:
+        return repr(e), 500
 
 
 def is_admin(email, course):

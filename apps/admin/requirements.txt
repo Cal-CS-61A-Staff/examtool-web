@@ -2,4 +2,5 @@
 google-cloud-firestore
 cryptography
 google-auth
-examtool[admin]
+examtool>=1.0.7
+sendgrid
