@@ -57,6 +57,12 @@ sequence of element blocks. Element blocks are either nested group blocks or que
 # END GROUP
 ```
 
+If you include the config statment
+```
+# CONFIG PICK <num>
+```
+within a group block, then only `num` elements (subgroups or questions) will be randomly selected and presented to the student, rather than the entire group.
+
 ## Question Syntax
 Each question block is introduced with
 ```
