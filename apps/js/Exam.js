@@ -13,6 +13,12 @@ export default function Exam({ groups, publicGroup, ended }) {
                 link.target = "_blank";
             }
         }
+        for (const table of document.getElementsByTagName("table")) {
+            table.classList.add("table", "table-bordered");
+        }
+        for (const blockquote of document.getElementsByTagName("blockquote")) {
+            blockquote.classList.add("blockquote");
+        }
         typeset();
     }, [groups]);
 
