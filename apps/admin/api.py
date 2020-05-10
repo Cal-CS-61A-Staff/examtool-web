@@ -19,7 +19,7 @@ def handle_api_call(method, kwargs):
     if not is_admin(email, course):
         return "", 401
     try:
-        if method in ["send_email", "send_email_batch"]:
+        if method in mail.__dict__:
             return jsonify(mail.__dict__[method](**kwargs))
         else:
             return jsonify(db.__dict__[method](**kwargs))
