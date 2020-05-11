@@ -17,8 +17,8 @@ export default function InternetDown({ onHide }) {
                 just send us your answers by email directly.
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Back to Exam
+                <Button variant="danger" onClick={onHide}>
+                    I know connection is lost. I am still going back to the exam
                 </Button>
             </Modal.Footer>
         </Modal>
