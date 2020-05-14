@@ -24,6 +24,25 @@
         .blockquote {
             border-left: gray 5px solid;
         }
+
+        /* In case of emergency, users may use Print => Save as PDF */
+        @media print {
+            /* Fix printing on Firefox, which only prints 1 page if display != block */
+            .exam > .row {
+                display: block;
+            }
+            /* Bootstrap seems to render the blue checkbox/radio backgrounds by filling in
+            label::before, and backgrounds sometimes don't show in economy print mode. This tells
+            the browser to use background colors for relevant form elements */
+            form .btn {
+                -webkit-print-color-adjust: exact; /* Chrome, Safari */
+                color-adjust: exact;               /* Firefox */
+            }
+            form .custom-control {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
     </style>
 
 </head>
