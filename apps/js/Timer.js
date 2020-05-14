@@ -11,10 +11,12 @@ export default function Timer({ target, onLock, onEnd }) {
         const time = Math.round(new Date().getTime() / 1000);
         const remaining = Math.max(target - time, 0);
 
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
         const seconds = remaining % 60;
-        const minutes = (remaining - seconds) / 60;
 
-        setTimeString(`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`);
+        setTimeString(`${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+                    + `:${seconds.toString().padStart(2, "0")}`);
 
         if (target - time < 0 && target - time >= -60) {
             onLock();
