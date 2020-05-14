@@ -6,6 +6,7 @@ import EndModal from "./EndModal";
 import Exam from "./Exam";
 import ExamContext from "./ExamContext";
 import InternetDown from "./InternetDown";
+import NavbarWarnings from "./NavbarWarnings";
 import PasswordDecryptor from "./PasswordDecryptor";
 import ExamDownloader from "./ExamDownloader";
 import GoogleSignInButton from "./GoogleSignInButton";
@@ -34,6 +35,10 @@ export default function StudentApp() {
     const [examEnded, setExamEnded] = useState(false);
 
     const [showInternetError, setShowInternetError] = useState(false);
+
+    const [unsavedQuestions, setUnsavedQuestions] = useState(new Set());
+
+    const [solvedQuestions, setSolvedQuestions] = useState(new Map());
 
     useEffect(() => {
         const go = async () => {
@@ -66,6 +71,10 @@ export default function StudentApp() {
         <>
             <Navbar bg="dark" variant="dark" sticky="top">
                 <Navbar.Brand href="#">CS 61A Exam Runner</Navbar.Brand>
+                <NavbarWarnings
+                    unsavedQuestions={unsavedQuestions}
+                    solvedQuestions={solvedQuestions}
+                />
                 {deadline && <Timer target={deadline} onLock={handleLock} onEnd={handleEnd} />}
             </Navbar>
             <Container>
@@ -153,6 +162,26 @@ export default function StudentApp() {
                     savedAnswers,
                     locked: examLocked,
                     onInternetError: () => setShowInternetError(true),
+                    recordUnsaved: (question) => {
+                        unsavedQuestions.add(question);
+                        setUnsavedQuestions(new Set(unsavedQuestions));
+                    },
+                    recordSaved: (question) => {
+                        unsavedQuestions.delete(question);
+                        setUnsavedQuestions(new Set(unsavedQuestions));
+                    },
+                    recordSolved: (question) => {
+                        if (!solvedQuestions.get(question)) {
+                            solvedQuestions.set(question, true);
+                            setSolvedQuestions(new Map(solvedQuestions));
+                        }
+                    },
+                    recordUnsolved: (question) => {
+                        if (!solvedQuestions.has(question) || solvedQuestions.get(question)) {
+                            solvedQuestions.set(question, false);
+                            setSolvedQuestions(new Map(solvedQuestions));
+                        }
+                    },
                 }}
                 >
                     <Exam publicGroup={publicGroup} groups={decryptedGroups} ended={examEnded} />

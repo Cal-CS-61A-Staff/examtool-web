@@ -27,8 +27,29 @@ export default function Question({
     const setValue = (val) => {
         if (!examContext.locked) {
             actuallySetValue(val);
+            if (val[0]) {
+                examContext.recordSolved(question.id);
+            } else {
+                examContext.recordUnsolved(question.id);
+            }
         }
     };
+
+    useEffect(() => {
+        if (defaultValue) {
+            examContext.recordSolved(question.id);
+        } else {
+            examContext.recordUnsolved(question.id);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (savedValue === value) {
+            examContext.recordSaved(question.id);
+        } else {
+            examContext.recordUnsaved(question.id);
+        }
+    }, [value !== savedValue]);
 
     const moveCursor = useRef(null);
 
