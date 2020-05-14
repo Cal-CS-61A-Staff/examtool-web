@@ -1,13 +1,15 @@
 import json
 import time
+import traceback
 from os import getenv
 
 from cryptography.fernet import Fernet
-from flask import jsonify, abort
+from flask import jsonify, abort, make_response
 from google.cloud import firestore
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from google.cloud.exceptions import NotFound
+from werkzeug.exceptions import HTTPException
 
 from examtool.api.scramble import scramble
 
@@ -15,6 +17,10 @@ from examtool.api.scramble import scramble
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
 
 DEV_EMAIL = getenv("DEV_EMAIL", "exam-test@berkeley.edu")
+
+
+def abort_with_msg(status, msg):
+    return abort(make_response(jsonify({"success": False, "message": msg}), status))
 
 
 def update_cache():
@@ -33,15 +39,18 @@ def get_email(request):
     if getenv("ENV") == "dev":
         return DEV_EMAIL
 
-    token = request.json["token"]
+    try:
+        token = request.json["token"]
 
-    # validate token
-    id_info = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        # validate token
+        id_info = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
 
-    if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
-        raise ValueError("Wrong issuer.")
+        if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Wrong issuer.")
 
-    return id_info["email"]
+        return id_info["email"]
+    except:
+        abort_with_msg(401, "Invalid authorization")
 
 
 def get_exam_dict(exam, db):
@@ -58,7 +67,7 @@ def get_deadline(exam, email, db):
         pass
 
     if not email.endswith("@berkeley.edu"):
-        abort(401)
+        abort_with_msg(403, "Email address does not end in @berkeley.edu")
     exam_data = get_exam_dict(exam, db)
     if exam_data.get("default_deadline"):
         # log unexpected access
@@ -69,7 +78,8 @@ def get_deadline(exam, email, db):
         })
         return exam_data["default_deadline"]
     else:
-        abort(401)
+        abort_with_msg(403, ("You are not on the roster, "
+                             "and course staff did not set a default deadline"))
 
 
 def index(request):
@@ -109,7 +119,7 @@ def index(request):
 
             # 120 second grace period in case of network latency or something
             if deadline + 120 < time.time():
-                abort(401)
+                abort_with_msg(403, ("The exam deadline has passed"))
                 return
 
             return jsonify(
@@ -140,13 +150,17 @@ def index(request):
 
             deadline = get_deadline(exam, email, db)
 
-            if deadline + 120 < time.time():
-                abort(401)
+            if deadline + 120 < time.time() or True:
+                abort_with_msg(403, ("The exam deadline has passed"))
                 return
 
             db.collection(exam).document(email).set({question_id: value}, merge=True)
             return jsonify({"success": True})
-    except:
+    except HTTPException as e:
+        raise e
+    except Exception:
+        if getenv("ENV") == "dev":
+            traceback.print_exc()
         print(dict(request.json))
         return jsonify({"success": False})
 

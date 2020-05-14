@@ -178,26 +178,40 @@ export default function Question({
             setSaving(false);
             if (!ret.ok) {
                 setFailText("Server failed to respond, please try again.");
-                examContext.onInternetError();
+                try {
+                    const data = await ret.json();
+                    if (data.message) {
+                        setFailText(`Server responded but failed to save (${data.message}).`);
+                    } else {
+                        setFailText(`Server responded but failed to save (HTTP ${ret.status}), please refresh and try again.`);
+                    }
+                } catch {
+                    // pass
+                }
+                examContext.onSaveError();
                 return;
             }
             try {
                 const data = await ret.json();
                 if (!data.success) {
-                    setFailText("Server responded but failed to save, please refresh and try again.");
-                    examContext.onInternetError();
+                    if (data.message) {
+                        setFailText(`Server responded but failed to save (${data.message}).`);
+                    } else {
+                        setFailText("Server responded but failed to save, please refresh and try again.");
+                    }
+                    examContext.onSaveError();
                 } else {
                     setSavedValue(val);
                     setFailText("");
                 }
             } catch {
                 setFailText("Server returned invalid JSON. Please try again.");
-                examContext.onInternetError();
+                examContext.onSaveError();
             }
         } catch {
             setSaving(false);
             setFailText("Unable to reach server, your network may have issues.");
-            examContext.onInternetError();
+            examContext.onSaveError();
         }
     };
 

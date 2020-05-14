@@ -2,7 +2,7 @@ import { createContext } from "react";
 
 const ExamContext = createContext({
     savedAnswers: {},
-    onInternetError: () => null,
+    onSaveError: () => null,
     recordUnsaved: () => null,
     recordSaved: () => null,
     recordSolved: () => null,

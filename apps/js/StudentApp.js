@@ -5,7 +5,7 @@ import {
 import EndModal from "./EndModal";
 import Exam from "./Exam";
 import ExamContext from "./ExamContext";
-import InternetDown from "./InternetDown";
+import SaveErrorModal from "./SaveErrorModal";
 import NavbarWarnings from "./NavbarWarnings";
 import PasswordDecryptor from "./PasswordDecryptor";
 import ExamDownloader from "./ExamDownloader";
@@ -34,7 +34,7 @@ export default function StudentApp() {
 
     const [examEnded, setExamEnded] = useState(false);
 
-    const [showInternetError, setShowInternetError] = useState(false);
+    const [showSaveError, setShowSaveError] = useState(false);
 
     const [unsavedQuestions, setUnsavedQuestions] = useState(new Set());
 
@@ -171,7 +171,7 @@ export default function StudentApp() {
                     exam: selectedExam,
                     savedAnswers,
                     locked: examLocked,
-                    onInternetError: () => setShowInternetError(true),
+                    onSaveError: () => setShowSaveError(true),
                     recordUnsaved: (question) => {
                         unsavedQuestions.add(question);
                         setUnsavedQuestions(new Set(unsavedQuestions));
@@ -209,7 +209,7 @@ export default function StudentApp() {
                     <Exam publicGroup={publicGroup} groups={decryptedGroups} ended={examEnded} />
                 </ExamContext.Provider>
                 {examLocked && <EndModal />}
-                {showInternetError && <InternetDown onHide={() => setShowInternetError(false)} /> }
+                {showSaveError && <SaveErrorModal onHide={() => setShowSaveError(false)} /> }
             </Container>
         </>
     );
