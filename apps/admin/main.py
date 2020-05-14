@@ -79,7 +79,7 @@ def index(request):
             secret = exam_json.pop("secret")
             return jsonify({
                 "exam": exam_json,
-                "secret": secret[:-1].decode("utf-8")
+                "secret": secret[:-1],
             })
 
     except:
