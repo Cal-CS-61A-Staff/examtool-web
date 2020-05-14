@@ -135,6 +135,10 @@ To randomize just groups at a particular depth, write
 ```
 to specify the scrambled depths, which are zero-indexed. Questions are one level lower than their parent group.
 
+To fix a particular group or question in its place while scrambling the others, use the syntax 
+`# BEGIN GROUP FIXED` or `# BEGIN QUESTION FIXED`. You can still provide titles (for groups) and point values 
+while using this syntax.
+
 ## Define Syntax
 It is also possible to replace particular words or variables in an exam for each student, to prevent cheating.
 The syntax is
