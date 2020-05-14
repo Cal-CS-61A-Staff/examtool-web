@@ -27,8 +27,29 @@ export default function Question({
     const setValue = (val) => {
         if (!examContext.locked) {
             actuallySetValue(val);
+            if (val[0]) {
+                examContext.recordSolved(question.id);
+            } else {
+                examContext.recordUnsolved(question.id);
+            }
         }
     };
+
+    useEffect(() => {
+        if (defaultValue[0]) {
+            examContext.recordSolved(question.id);
+        } else {
+            examContext.recordUnsolved(question.id);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (savedValue === value) {
+            examContext.recordSaved(question.id);
+        } else {
+            examContext.recordUnsaved(question.id);
+        }
+    }, [value !== savedValue]);
 
     const moveCursor = useRef(null);
 
@@ -189,14 +210,33 @@ export default function Question({
         return () => debouncedSubmit(value, savedValue);
     }, [value, savedValue]);
 
+    const starred = examContext.starredQuestions.get(question.id);
+
+    const starColor = starred ? "orange" : "black";
+    const starBody = starred ? <>&#9733;</> : <>&#9734;</>;
+
+    const toggleStarred = (e) => {
+        e.preventDefault();
+        examContext.setStarred(question.id, !starred);
+    };
+
     return (
         <>
             <Form onSubmit={(e) => { e.preventDefault(); submit(); }}>
-                <Form.Label>
+                <Form.Label style={{ width: "100%" }}>
                     <Anchor name={number} />
                     <h5 style={{ marginTop: 8, marginBottom: 0 }}>
                         Q
                         {number}
+                        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                        <a
+                            href="#"
+                            onClick={toggleStarred}
+                            className="badge badge-light"
+                            style={{ float: "right", "font-size": "100%", color: starColor }}
+                        >
+                            {starBody}
+                        </a>
                     </h5>
                     {" "}
                     <Points
