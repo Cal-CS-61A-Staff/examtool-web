@@ -149,5 +149,11 @@ This will replace all instances of `target` with one of the alternatives, chosen
 the block where it is made i.e. if it is written at the top-level, it will replace the `target` everywhere in the document,
 if it is written in a group, it will replace the `target` everywhere in the group, etc.
 
+If you have a set of variables which should be replaced with a set of another, and you do not want duplicate choices, you can use this define syntax:
+```
+# DEFINE [<target1> <target2> ...] [<alt1> <alt2> ...]
+```
+This will uniquely set each target with one of the alts. You may have more alts than targets but you **must** have at least as many alts as targets.
+
 Note that this syntax does not support Markdown - it is a very naive text substitution in the generated HTML, so don't
 try anything too fancy with it!
