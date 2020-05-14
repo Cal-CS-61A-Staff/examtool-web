@@ -40,6 +40,16 @@ export default function StudentApp() {
 
     const [solvedQuestions, setSolvedQuestions] = useState(new Map());
 
+    const [starredQuestions, setStarredQuestions] = useState(new Map());
+
+    useEffect(() => {
+        try {
+            setStarredQuestions(new Map(JSON.parse(localStorage.getItem("starredQs"))));
+        } catch {
+            // pass
+        }
+    }, []);
+
     useEffect(() => {
         const go = async () => {
             setExamList(await (await post("list_exams")).json());
@@ -182,6 +192,18 @@ export default function StudentApp() {
                             setSolvedQuestions(new Map(solvedQuestions));
                         }
                     },
+                    unsavedQuestions,
+                    solvedQuestions,
+                    setStarred: (question, starred) => {
+                        starredQuestions.set(question, starred);
+                        setStarredQuestions(new Map(starredQuestions));
+                        try {
+                            localStorage.setItem("starredQs", JSON.stringify(Array.from(starredQuestions.entries())));
+                        } catch {
+                            // pass
+                        }
+                    },
+                    starredQuestions,
                 }}
                 >
                     <Exam publicGroup={publicGroup} groups={decryptedGroups} ended={examEnded} />
