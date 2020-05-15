@@ -158,10 +158,10 @@ def index(request):
             return jsonify({"success": True})
     except HTTPException as e:
         return e.get_response()
-    except Exception:
+    except:
         if getenv("ENV") == "dev":
             traceback.print_exc()
         print(dict(request.json))
-        return jsonify({"success": False})
+        return jsonify({"success": False}), 500
 
     return request.path

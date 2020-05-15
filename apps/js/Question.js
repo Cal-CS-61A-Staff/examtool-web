@@ -176,38 +176,23 @@ export default function Question({
                 exam: examContext.exam,
             });
             setSaving(false);
-            if (!ret.ok) {
-                setFailText("Server failed to respond, please try again.");
-                try {
-                    const data = await ret.json();
-                    if (data.message) {
-                        setFailText(`Server responded but failed to save (${data.message}).`);
-                    } else {
-                        setFailText(`Server responded but failed to save (HTTP ${ret.status}), please refresh and try again.`);
-                    }
-                } catch {
-                    // pass
-                }
-                examContext.onSaveError();
+            if (ret.ok) {
+                setSavedValue(val);
+                setFailText("");
                 return;
             }
             try {
                 const data = await ret.json();
-                if (!data.success) {
-                    if (data.message) {
-                        setFailText(`Server responded but failed to save (${data.message}).`);
-                    } else {
-                        setFailText("Server responded but failed to save, please refresh and try again.");
-                    }
-                    examContext.onSaveError();
+                if (data.message) {
+                    setFailText(`Server responded but failed to save (${data.message}).`);
                 } else {
-                    setSavedValue(val);
-                    setFailText("");
+                    setFailText(`Server responded but failed to save (HTTP ${ret.status}), please refresh and try again.`);
                 }
             } catch {
                 setFailText("Server returned invalid JSON. Please try again.");
-                examContext.onSaveError();
             }
+            examContext.onSaveError();
+            return;
         } catch {
             setSaving(false);
             setFailText("Unable to reach server, your network may have issues.");

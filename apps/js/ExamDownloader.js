@@ -14,21 +14,16 @@ export default function ExamDownloader({ exam, onReceive }) {
         setFailText("");
         try {
             const ret = await post("get_exam", { token: getToken(), exam });
-            if (!ret.ok) {
-                setFailText(`The exam server failed with error ${ret.status}. Please try again.`);
-            }
 
             try {
                 const data = await ret.json();
 
-                if (!data.success) {
-                    if (data.message) {
-                        setFailText(`The exam server responded but did not produce a valid exam (${data.message}).`);
-                    } else {
-                        setFailText("The exam server responded but did not produce a valid exam. Please try again.");
-                    }
-                } else {
+                if (ret.ok) {
                     onReceive(data);
+                } else if (data.message) {
+                    setFailText(`The exam server responded but did not produce a valid exam (${data.message}).`);
+                } else {
+                    setFailText(`The exam server responded with HTTP ${ret.status}. Please try again.`);
                 }
             } catch {
                 setFailText("The web server returned invalid JSON. Please try again.");
