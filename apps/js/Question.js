@@ -176,14 +176,13 @@ export default function Question({
                 exam: examContext.exam,
             });
             setSaving(false);
-            if (ret.ok) {
-                setSavedValue(val);
-                setFailText("");
-                return;
-            }
             try {
                 const data = await ret.json();
-                if (data.message) {
+                if (data.success) {
+                    setSavedValue(val);
+                    setFailText("");
+                    return;
+                } else if (data.message) {
                     setFailText(`Server responded but failed to save (${data.message}).`);
                 } else {
                     setFailText(`Server responded but failed to save (HTTP ${ret.status}), please refresh and try again.`);

@@ -18,7 +18,7 @@ export default function ExamDownloader({ exam, onReceive }) {
             try {
                 const data = await ret.json();
 
-                if (ret.ok) {
+                if (data.success) {
                     onReceive(data);
                 } else if (data.message) {
                     setFailText(`The exam server responded but did not produce a valid exam (${data.message}).`);
