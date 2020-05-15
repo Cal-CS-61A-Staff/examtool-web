@@ -5,8 +5,8 @@ import Button from "react-bootstrap/Button";
 export default function SaveErrorModal({ onHide }) {
     return (
         <Modal show>
-            <Modal.Header closeButton>
-                <Modal.Title>Auto-Save Error!</Modal.Title>
+            <Modal.Header>
+                <Modal.Title>Save Error!</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 The tool was unable to save due to a network or server error.
@@ -20,7 +20,7 @@ export default function SaveErrorModal({ onHide }) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="danger" onClick={onHide}>
-                    I know auto-save failed. I am still going back to the exam.
+                    I know my exam failed to save. I am still going back to the exam.
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -157,7 +157,7 @@ def index(request):
             db.collection(exam).document(email).set({question_id: value}, merge=True)
             return jsonify({"success": True})
     except HTTPException as e:
-        raise e
+        return e.get_response()
     except Exception:
         if getenv("ENV") == "dev":
             traceback.print_exc()
