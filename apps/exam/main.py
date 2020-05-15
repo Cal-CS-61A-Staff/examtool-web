@@ -150,7 +150,7 @@ def index(request):
 
             deadline = get_deadline(exam, email, db)
 
-            if deadline + 120 < time.time() or True:
+            if deadline + 120 < time.time():
                 abort_with_msg(403, ("The exam deadline has passed"))
                 return
 
