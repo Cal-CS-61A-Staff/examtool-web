@@ -77,7 +77,7 @@ Each question block is introduced with
 ```
 Note that, unlike groups, questions do not have titles. Then you can provide some question
 body text, written in Markdown. Then you must provide at least one `INPUT` statement. Then
-a question is ended with
+you can provide `SOLUTION` and `NOTE` blocks. Then a question is ended with
 ```
 # END QUESTION
 ```
@@ -103,12 +103,39 @@ To fix an option in place even if `SCRAMBLE_OPTIONS` is enabled, use the syntax
 ```
 and it will not be shuffled.
 
+To indicate a correct option when generating solutions, use the syntax
+```
+# INPUT <type> CORRECT <content>
+```
+If `FIXED` and `CORRECT` are used together, use the syntax
+```
+# INPUT <type> FIXED CORRECT <content>
+```
+Note that the order matters.
+
 For short / long answer questions, you must provide exactly one input statement within that question.
 The `type` can be `SHORT_ANSWER`, `SHORT_CODE_ANSWER`, `LONG_ANSWER`, or `LONG_CODE_ANSWER`. `CODE` 
 means that the font will be monospaced and tab will work to indent text typed in a `LONG_CODE_ANSWER`.
 For short answer questions, the `content` should be left blank. For long answer questions, the `content`
 can optionally be an integer representing the number of lines provided in the input field before the user
 has to start scrolling. This also affects the height of the box in the generated PDF in a similar way.
+
+## Solution and Note Syntax
+Each solution block looks like
+```
+# BEGIN SOLUTION
+...
+# END SOLUTION
+```
+and each note block looks like
+```
+# BEGIN NOTE
+...
+# END NOTE
+```
+Solutions will be included in the text entry box in the PDF when solutions are generated, and notes will be
+included _after_ the text entry box (e.g. as further explanations). Notes can be included for any type of
+question, but solutions can only be included for free-response type questions. 
 
 ## Public Syntax
 If you want to have some questions that can be filled out before the exam starts, use a
