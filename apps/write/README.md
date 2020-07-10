@@ -178,7 +178,7 @@ if it is written in a group, it will replace the `target` everywhere in the grou
 
 If you have a set of variables which should be replaced with a set of another, and you do not want duplicate choices, you can use this define syntax:
 ```
-# DEFINE [<target1> <target2> ...] [<alt1> <alt2> ...]
+# DEFINE MATCH [<target1> <target2> ...] [<alt1> <alt2> ...]
 ```
 This will uniquely set each target with one of the alts. You may have more alts than targets but you **must** have at least as many alts as targets.
 
