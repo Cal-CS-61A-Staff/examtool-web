@@ -3,6 +3,8 @@ from os import getenv
 from flask import jsonify
 from google.cloud import firestore
 
+from api import process_ok_exam_upload
+
 # this can be public
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
 
@@ -33,6 +35,10 @@ def index(request):
 
         if request.path == "/":
             return main_html
+
+        if request.path.endswith("/api/upload_ok_exam"):
+            process_ok_exam_upload(db, request.json["data"], request.json["secret"])
+            return {"success": True}
 
     except:
         print(dict(request.json))
