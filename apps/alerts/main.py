@@ -2,6 +2,7 @@ from os import getenv
 
 from flask import jsonify
 from google.cloud import firestore
+from google.cloud import texttospeech
 
 # this can be public
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
@@ -34,7 +35,35 @@ def index(request):
         if request.path == "/":
             return main_html
 
-    except:
+        if request.path.endswith("demo_get_audio"):
+            text = "Hello, world!"
+
+            client = texttospeech.TextToSpeechClient()
+            synthesis_input = texttospeech.SynthesisInput({"text": "Hello, World!"})
+            voice = texttospeech.VoiceSelectionParams(
+                {
+                    "name": "en-US-Wavenet-B",
+                    "language_code": "en-US",
+                }
+            )
+            audio_config = texttospeech.AudioConfig(
+                {"audio_encoding": texttospeech.AudioEncoding.MP3}
+            )
+
+            response = client.synthesize_speech(
+                input=synthesis_input, voice=voice, audio_config=audio_config
+            )
+
+            return jsonify(
+                {
+                    "success": True,
+                    "text": text,
+                    "audio": response,
+                }
+            )
+
+    except Exception as e:
+        print(e)
         print(dict(request.json))
         return jsonify({"success": False})
 
