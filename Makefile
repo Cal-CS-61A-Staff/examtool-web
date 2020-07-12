@@ -37,3 +37,15 @@ write-deploy:
 	cd apps/write && \
 	gcloud builds submit --tag gcr.io/$(PROJECT_ID)/staff-exam-server && \
 	gcloud run deploy --image gcr.io/$(PROJECT_ID)/staff-exam-server --platform managed
+
+.PHONY: alerts-deploy
+alerts-deploy:
+	cd apps/alerts && gcloud functions deploy exam-alerts --runtime python37 --trigger-http --entry-point index
+
+.PHONY: alerts-dev
+alerts-dev:
+	export MODE=alerts; \
+	export FLASK_APP=run_local; \
+	export GOOGLE_APPLICATION_CREDENTIALS=$(shell pwd)/creds.json; \
+	export ENV=dev; \
+	yarn run concurrently webpack "cd apps && python run_local.py"

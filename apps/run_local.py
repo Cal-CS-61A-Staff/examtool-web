@@ -22,6 +22,10 @@ if mode == "write":
     from write.app import app
     app.run()
 
+if mode == "alerts":
+    sys.path.append(os.path.abspath("alerts"))
+    os.chdir("alerts")
+    from main import index
 
 app = Flask(__name__)
 

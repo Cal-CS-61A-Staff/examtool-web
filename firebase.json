@@ -1,5 +1,6 @@
 {
-  "hosting": {
+  "hosting": [{
+    "target": "exam",
     "public": "public",
     "ignore": [
       "firebase.json",
@@ -20,6 +21,20 @@
         "function": "exam-server"
       }
     ]
-
-  }
+  },
+  {
+    "target": "alerts",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/**",
+        "function": "exam-alerts"
+      }
+    ]
+  }]
 }
