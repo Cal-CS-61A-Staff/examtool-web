@@ -3,6 +3,7 @@ module.exports = {
         exam: "./apps/js/studentIndex.js",
         write: "./apps/js/staffIndex.js",
         admin: "./apps/js/adminIndex.js",
+        alerts: "./apps/js/alertsIndex.js",
     },
     watch: true,
     output: {
