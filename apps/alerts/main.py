@@ -82,7 +82,7 @@ def index(request):
             if not is_admin(get_email_from_secret(request.json["secret"]), course):
                 abort(401)
             clear_collection(db, db.collection("exam-alerts").document(exam).collection("announcements"))
-            return {"success": True}
+            return jsonify({"success": True})
 
         if request.path.endswith("add_announcement"):
             exam = request.json["exam"]
@@ -92,7 +92,7 @@ def index(request):
             announcement = request.json["announcement"]
             announcement["timestamp"] = time.time()
             db.collection("exam-alerts").document(exam).collection("announcements").document().set(announcement)
-            return {"success": True}
+            return jsonify({"success": True})
 
         if request.path.endswith("upload_ok_exam"):
             process_ok_exam_upload(db, request.json["data"], request.json["secret"])
