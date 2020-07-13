@@ -9,6 +9,10 @@ if TYPE_CHECKING:
     from google.cloud import firestore
 
 
+BATCH_SIZE = 400
+assert BATCH_SIZE < 500
+
+
 def get_email_from_secret(secret):
     ret = requests.get("https://okpy.org/api/v3/user/", params={"access_token": secret})
     if ret.status_code != 200:
@@ -36,7 +40,7 @@ def clear_collection(db: "firestore.Client", ref):
     for document in ref.stream():
         batch.delete(document.reference)
         cnt += 1
-        if cnt > 400:
+        if cnt > BATCH_SIZE:
             batch.commit()
             batch = db.batch()
             cnt = 0
@@ -65,7 +69,7 @@ def process_ok_exam_upload(db: "firestore.Client", data, secret):
         ]
         "questions": [
             {
-                "question_name": string,
+                "canonical_question_name": string,
                 "canonical_question_text": string,
             }
         ],
@@ -89,7 +93,7 @@ def process_ok_exam_upload(db: "firestore.Client", data, secret):
         doc_ref = ref.document(student["email"])
         batch.set(doc_ref, student)
         cnt += 1
-        if cnt > 400:
+        if cnt > BATCH_SIZE:
             batch.commit()
             batch = db.batch()
             cnt = 0
@@ -117,8 +121,7 @@ def get_announcements(student_data, announcements):
     when that question starts / ends.
 
     Any instances of the `canonical_question_name` will be replaced with the `student_question_name` when the
-    announcement is sent to students. Similarly, any exam text substitutions will be made in the message before
-    it is sent.
+    announcement is sent to students.
     """
     to_send = []
     request_time = time.time()
@@ -142,6 +145,9 @@ def get_announcements(student_data, announcements):
                 for question in student_data["questions"]:
                     if question["canonical_question_name"] == question_name:
                         event = question
+                        announcement["message"] = announcement["message"].replace(
+                            question_name, question["student_question_name"]
+                        )
                         break
                 else:
                     # student did not receive this question
@@ -149,7 +155,11 @@ def get_announcements(student_data, announcements):
             else:
                 event = student_data
 
-            threshold = event["start_time"] if announcement["base"] == "start" else event["end_time"]
+            threshold = (
+                event["start_time"]
+                if announcement["base"] == "start"
+                else event["end_time"]
+            )
             threshold += announcement["offset"]
 
             if request_time >= threshold:

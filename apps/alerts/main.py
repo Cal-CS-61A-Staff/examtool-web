@@ -6,7 +6,7 @@ from google.cloud import firestore
 from google.oauth2 import id_token
 from google.auth.transport import requests as g_requests
 
-from api import process_ok_exam_upload, is_admin, clear_collection, get_announcements
+from api import process_ok_exam_upload, is_admin, clear_collection, get_announcements, get_email_from_secret
 
 # this can be public
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
@@ -79,7 +79,7 @@ def index(request):
         if request.path.endswith("clear_announcements"):
             exam = request.json["exam"]
             course = exam.split("-")[0]
-            if not is_admin(get_email(request), course):
+            if not is_admin(get_email_from_secret(request.json["secret"]), course):
                 abort(401)
             clear_collection(db, db.collection("exam-alerts").document(exam).collection("announcements"))
             return {"success": True}
@@ -87,7 +87,7 @@ def index(request):
         if request.path.endswith("add_announcement"):
             exam = request.json["exam"]
             course = exam.split("-")[0]
-            if not is_admin(get_email(request), course):
+            if not is_admin(get_email_from_secret(request.json["secret"]), course):
                 abort(401)
             announcement = request.json["announcement"]
             announcement["timestamp"] = time.time()
