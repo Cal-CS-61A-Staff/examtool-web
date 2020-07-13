@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 import requests
 from flask import abort
 
+from placeholder_audio import PLACEHOLDER_AUDIO
+
 if TYPE_CHECKING:
     from google.cloud import firestore
 
@@ -100,13 +102,13 @@ def process_ok_exam_upload(db: "firestore.Client", data, secret):
     batch.commit()
 
     ref = db.collection("exam-alerts").document("all")
-    data = ref.get().to_dict()
-    if data["exam_name"] not in data["exam-list"]:
-        data["exam-list"].append(data["exam_name"])
-    ref.set(data)
+    exam_list_data = ref.get().to_dict()
+    if data["exam_name"] not in exam_list_data["exam-list"]:
+        exam_list_data["exam-list"].append(data["exam_name"])
+    ref.set(exam_list_data)
 
 
-def get_announcements(student_data, announcements):
+def get_announcements(student_data, announcements, received_audio, get_audio):
     """
     Announcements are of the form
     {
@@ -115,6 +117,7 @@ def get_announcements(student_data, announcements):
         offset: int,
         base: "start" | "end",
         message: string,
+        spoken_message: ?string
     }
     Immediate announcements only need a message. If no question name is provided, the announcement will be
     made relative to the exam start/end, otherwise it will be relative to the question
@@ -136,6 +139,8 @@ def get_announcements(student_data, announcements):
                     "message": announcement["message"],
                 }
             )
+            if received_audio is not None and announcement_id not in received_audio:
+                to_send[-1]["audio"] = get_audio(announcement_id)
 
         if announcement["type"] == "immediate":
             include_it(announcement["timestamp"])
@@ -168,3 +173,7 @@ def get_announcements(student_data, announcements):
     to_send.sort(key=lambda x: x["time"])
     to_send.reverse()
     return to_send
+
+
+def generate_audio(message):
+    return PLACEHOLDER_AUDIO
