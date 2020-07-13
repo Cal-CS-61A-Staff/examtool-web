@@ -99,7 +99,6 @@ def index(request):
             return jsonify({"success": True})
 
     except Exception as e:
-        raise
         print(e)
         print(dict(request.json))
         return jsonify({"success": False})
