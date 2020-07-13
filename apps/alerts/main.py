@@ -1,7 +1,12 @@
+import time
 from os import getenv
 
-from flask import jsonify
+from flask import jsonify, abort
 from google.cloud import firestore
+from google.oauth2 import id_token
+from google.auth.transport import requests as g_requests
+
+from api import process_ok_exam_upload, is_admin, clear_collection, get_announcements, get_email_from_secret
 
 # this can be public
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
@@ -21,6 +26,21 @@ def update_cache():
 update_cache()
 
 
+def get_email(request):
+    if getenv("ENV") == "dev":
+        return DEV_EMAIL
+
+    token = request.json["token"]
+
+    # validate token
+    id_info = id_token.verify_oauth2_token(token, g_requests.Request(), CLIENT_ID)
+
+    if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+        raise ValueError("Wrong issuer.")
+
+    return id_info["email"]
+
+
 def index(request):
     try:
         if getenv("ENV") == "dev":
@@ -34,7 +54,52 @@ def index(request):
         if request.path == "/":
             return main_html
 
-    except:
+        if request.path.endswith("list_exams"):
+            return jsonify(db.collection("exam-alerts").document("all").get().to_dict()["exam-list"])
+
+        if request.path.endswith("fetch_data"):
+            exam = request.json["exam"]
+            email = get_email(request)
+            student_data = db.collection("exam-alerts").document(exam).collection("students").document(email).get().to_dict()
+            announcements = list(db.collection("exam-alerts").document(exam).collection("announcements").stream())
+            return jsonify({
+                "success": True,
+                "exam_type": "ok-exam",
+                "questions": [
+                    {
+                        "questionName": question["student_question_name"],
+                        "startTime": question["start_time"],
+                        "endTime": question["end_time"],
+                    }
+                    for question in student_data["questions"]
+                ],
+                "announcements": get_announcements(student_data, announcements),
+            })
+
+        if request.path.endswith("clear_announcements"):
+            exam = request.json["exam"]
+            course = exam.split("-")[0]
+            if not is_admin(get_email_from_secret(request.json["secret"]), course):
+                abort(401)
+            clear_collection(db, db.collection("exam-alerts").document(exam).collection("announcements"))
+            return jsonify({"success": True})
+
+        if request.path.endswith("add_announcement"):
+            exam = request.json["exam"]
+            course = exam.split("-")[0]
+            if not is_admin(get_email_from_secret(request.json["secret"]), course):
+                abort(401)
+            announcement = request.json["announcement"]
+            announcement["timestamp"] = time.time()
+            db.collection("exam-alerts").document(exam).collection("announcements").document().set(announcement)
+            return jsonify({"success": True})
+
+        if request.path.endswith("upload_ok_exam"):
+            process_ok_exam_upload(db, request.json["data"], request.json["secret"])
+            return jsonify({"success": True})
+
+    except Exception as e:
+        print(e)
         print(dict(request.json))
         return jsonify({"success": False})
 
