@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-    Card,
+    Badge, Card,
     Col, Container, Form, ListGroup, Row,
 } from "react-bootstrap";
 import AlertsContext from "./AlertsContext";
@@ -20,6 +20,9 @@ export default function Alerts() {
     const [examData, setExamData] = useState(null);
     const [stale, setStale] = useState(false);
 
+    const [audioQueue, setAudioQueue] = useState([]); // pop off the next audio to play
+    const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
     const time = useTick();
 
     const handleExamSelect = (e) => {
@@ -32,15 +35,44 @@ export default function Alerts() {
         })();
     }, []);
 
+    useEffect(() => {
+        if (audioQueue.length > 0 && !isPlayingAudio) {
+            const nextAudio = audioQueue[0];
+            const sound = new Audio(`data:audio/mp3;base64,${nextAudio}`);
+            setIsPlayingAudio(true);
+            sound.play();
+            sound.addEventListener("ended", () => {
+                setAudioQueue((queue) => queue.slice(1));
+                setIsPlayingAudio(false);
+            });
+        }
+    }, [audioQueue, isPlayingAudio]);
+
+    useEffect(() => {
+        document.title = stale ? "(DISCONNECTED) Exam Announcements" : "Exam Announcements";
+    }, [stale]);
+
     useInterval(async () => {
         if (examData) {
             try {
-                const resp = await post("fetch_data", { token: getToken(), exam: selectedExam });
+                const resp = await post("fetch_data", {
+                    token: getToken(),
+                    exam: selectedExam,
+                    receivedAudio: examData.announcements.map((x) => x.id),
+                });
                 if (resp.ok) {
                     const data = await resp.json();
                     if (data.success) {
                         setExamData(data);
                         setStale(false);
+                        const newAudio = [];
+                        for (const { audio } of data.announcements) {
+                            if (audio) {
+                                newAudio.push(audio);
+                            }
+                        }
+                        newAudio.reverse();
+                        setAudioQueue((queue) => queue.concat(newAudio));
                     }
                 }
             } catch (e) {
@@ -114,12 +146,15 @@ export default function Alerts() {
                         <Row>
                             <Col>
                                 <Card>
-                                    <Card.Header>Announcements</Card.Header>
+                                    <Card.Header>
+                                        Announcements
+                                        {stale && <Badge style={{ float: "right" }} variant="danger">Disconnected</Badge>}
+                                    </Card.Header>
                                     <ListGroup variant="flush">
                                         {
                                             examData.announcements.map(
                                                 ({ id, message, time: announcementTime }) => (
-                                                    <ListGroup.Item key={id}>
+                                                    <ListGroup.Item key={id} style={{ whiteSpace: "pre-wrap" }}>
                                                         {message}
                                                         {" "}
                                                         (

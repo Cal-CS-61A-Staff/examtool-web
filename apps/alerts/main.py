@@ -6,7 +6,14 @@ from google.cloud import firestore
 from google.oauth2 import id_token
 from google.auth.transport import requests as g_requests
 
-from api import process_ok_exam_upload, is_admin, clear_collection, get_announcements, get_email_from_secret
+from api import (
+    process_ok_exam_upload,
+    is_admin,
+    clear_collection,
+    get_announcements,
+    get_email_from_secret,
+    generate_audio,
+)
 
 # this can be public
 CLIENT_ID = "713452892775-59gliacuhbfho8qvn4ctngtp3858fgf9.apps.googleusercontent.com"
@@ -55,33 +62,72 @@ def index(request):
             return main_html
 
         if request.path.endswith("list_exams"):
-            return jsonify(db.collection("exam-alerts").document("all").get().to_dict()["exam-list"])
+            return jsonify(
+                db.collection("exam-alerts")
+                .document("all")
+                .get()
+                .to_dict()["exam-list"]
+            )
 
         if request.path.endswith("fetch_data"):
             exam = request.json["exam"]
+            received_audio = request.json.get("receivedAudio")
             email = get_email(request)
-            student_data = db.collection("exam-alerts").document(exam).collection("students").document(email).get().to_dict()
-            announcements = list(db.collection("exam-alerts").document(exam).collection("announcements").stream())
-            return jsonify({
-                "success": True,
-                "exam_type": "ok-exam",
-                "questions": [
-                    {
-                        "questionName": question["student_question_name"],
-                        "startTime": question["start_time"],
-                        "endTime": question["end_time"],
-                    }
-                    for question in student_data["questions"]
-                ],
-                "announcements": get_announcements(student_data, announcements),
-            })
+            student_data = (
+                db.collection("exam-alerts")
+                .document(exam)
+                .collection("students")
+                .document(email)
+                .get()
+                .to_dict()
+            )
+            announcements = list(
+                db.collection("exam-alerts")
+                .document(exam)
+                .collection("announcements")
+                .stream()
+            )
+            return jsonify(
+                {
+                    "success": True,
+                    "exam_type": "ok-exam",
+                    "questions": [
+                        {
+                            "questionName": question["student_question_name"],
+                            "startTime": question["start_time"],
+                            "endTime": question["end_time"],
+                        }
+                        for question in student_data["questions"]
+                    ],
+                    "announcements": get_announcements(
+                        student_data,
+                        announcements,
+                        received_audio,
+                        lambda x: db.collection("exam-alerts")
+                        .document(exam)
+                        .collection("announcement_audio")
+                        .document(x)
+                        .get()
+                        .to_dict()["audio"],
+                    ),
+                }
+            )
 
         if request.path.endswith("clear_announcements"):
             exam = request.json["exam"]
             course = exam.split("-")[0]
             if not is_admin(get_email_from_secret(request.json["secret"]), course):
                 abort(401)
-            clear_collection(db, db.collection("exam-alerts").document(exam).collection("announcements"))
+            clear_collection(
+                db,
+                db.collection("exam-alerts").document(exam).collection("announcements"),
+            )
+            clear_collection(
+                db,
+                db.collection("exam-alerts")
+                .document(exam)
+                .collection("announcement_audio"),
+            )
             return jsonify({"success": True})
 
         if request.path.endswith("add_announcement"):
@@ -91,7 +137,20 @@ def index(request):
                 abort(401)
             announcement = request.json["announcement"]
             announcement["timestamp"] = time.time()
-            db.collection("exam-alerts").document(exam).collection("announcements").document().set(announcement)
+            ref = (
+                db.collection("exam-alerts")
+                .document(exam)
+                .collection("announcements")
+                .document()
+            )
+            ref.set(announcement)
+            spoken_message = (
+                announcement.get("spoken_message") or announcement["message"]
+            )
+            audio = generate_audio(spoken_message)
+            db.collection("exam-alerts").document(exam).collection(
+                "announcement_audio"
+            ).document(ref.id).set({"audio": audio})
             return jsonify({"success": True})
 
         if request.path.endswith("upload_ok_exam"):
@@ -99,6 +158,8 @@ def index(request):
             return jsonify({"success": True})
 
     except Exception as e:
+        if getenv("ENV") == "dev":
+            raise
         print(e)
         print(dict(request.json))
         return jsonify({"success": False})
