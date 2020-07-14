@@ -11,7 +11,7 @@ export default function TimerBanner() {
     const timeString = currQuestion != null
         ? timeDeltaString(currQuestion.endTime - time)
         : nextQuestion != null
-            ? timeDeltaString(nextQuestion.endTime - time)
+            ? timeDeltaString(nextQuestion.startTime - time)
             : "Exam ended!";
 
     // eslint-disable-next-line no-nested-ternary
