@@ -4,7 +4,7 @@ import FailText from "./FailText";
 import LoadingButton from "./LoadingButton";
 import post from "./post";
 
-export default function ConnectAlertButton({ exam, onReceive }) {
+export default function ConnectAlertButton({ exam, isStaff, onReceive }) {
     const [loading, setLoading] = useState(false);
 
     const [failText, setFailText] = useState("");
@@ -13,7 +13,10 @@ export default function ConnectAlertButton({ exam, onReceive }) {
         setLoading(true);
         setFailText("");
         try {
-            const ret = await post("fetch_data", { token: getToken(), exam });
+            const ret = await post(
+                isStaff ? "fetch_staff_data" : "fetch_data",
+                { token: getToken(), exam },
+            );
             if (!ret.ok) {
                 setFailText(`
                 The exam server failed with error ${ret.status}. Please try again. 

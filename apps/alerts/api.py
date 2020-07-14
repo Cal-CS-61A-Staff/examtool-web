@@ -59,7 +59,6 @@ def process_ok_exam_upload(db: "firestore.Client", data, secret):
                     {
                         "student_question_name": string,
                         "canonical_question_name": string,
-                        "student_question_text": string,
                         "start_time": int,
                         "end_time": int,
                     }
@@ -71,7 +70,6 @@ def process_ok_exam_upload(db: "firestore.Client", data, secret):
         "questions": [
             {
                 "canonical_question_name": string,
-                "canonical_question_text": string,
             }
         ],
     }
@@ -175,7 +173,7 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
 
 
 def generate_audio(message):
-    message = "Attention students. This is an important announcement. " + message
+    message = "Attention students. " + message
 
     client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput({"text": message})

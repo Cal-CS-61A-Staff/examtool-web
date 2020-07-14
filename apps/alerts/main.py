@@ -69,8 +69,14 @@ def index(request):
                 .to_dict()["exam-list"]
             )
 
+        if request.path.endswith("upload_ok_exam"):
+            process_ok_exam_upload(db, request.json["data"], request.json["secret"])
+            return jsonify({"success": True})
+
+        exam = request.json["exam"]
+        course = exam.split("-")[0]
+
         if request.path.endswith("fetch_data"):
-            exam = request.json["exam"]
             received_audio = request.json.get("receivedAudio")
             email = get_email(request)
             student_data = (
@@ -116,28 +122,14 @@ def index(request):
                 }
             )
 
-        if request.path.endswith("clear_announcements"):
-            exam = request.json["exam"]
-            course = exam.split("-")[0]
-            if not is_admin(get_email_from_secret(request.json["secret"]), course):
-                abort(401)
-            clear_collection(
-                db,
-                db.collection("exam-alerts").document(exam).collection("announcements"),
-            )
-            clear_collection(
-                db,
-                db.collection("exam-alerts")
-                .document(exam)
-                .collection("announcement_audio"),
-            )
-            return jsonify({"success": True})
+        # only staff endpoints from here onwards
+        email = get_email_from_secret(request.json["secret"]) if "secret" in request.json else get_email(request)
+        if not is_admin(email, course):
+            abort(401)
 
-        if request.path.endswith("add_announcement"):
-            exam = request.json["exam"]
-            course = exam.split("-")[0]
-            if not is_admin(get_email_from_secret(request.json["secret"]), course):
-                abort(401)
+        if request.path.endswith("fetch_staff_data"):
+            pass
+        elif request.path.endswith("add_announcement"):
             announcement = request.json["announcement"]
             announcement["timestamp"] = time.time()
             ref = (
@@ -154,11 +146,37 @@ def index(request):
             db.collection("exam-alerts").document(exam).collection(
                 "announcement_audio"
             ).document(ref.id).set({"audio": audio})
-            return jsonify({"success": True})
+        elif request.path.endswith("clear_announcements"):
+            clear_collection(
+                db,
+                db.collection("exam-alerts").document(exam).collection("announcements"),
+            )
+            clear_collection(
+                db,
+                db.collection("exam-alerts")
+                .document(exam)
+                .collection("announcement_audio"),
+            )
+        elif request.path.endswith("delete_announcement"):
+            target = request.path["id"]
+            db.collection("exam-alerts").document(exam).collection("announcements").document(target).delete()
+        else:
+            abort(404)
 
-        if request.path.endswith("upload_ok_exam"):
-            process_ok_exam_upload(db, request.json["data"], request.json["secret"])
-            return jsonify({"success": True})
+        # all staff endpoints return an updated state
+        exam_data = db.collection("exam-alerts").document(exam).get().to_dict()
+        announcements = sorted(
+            (
+                {"id": announcement.id, **announcement.to_dict()}
+                for announcement in db.collection("exam-alerts")
+                .document(exam)
+                .collection("announcements")
+                .stream()
+            ),
+            key=lambda announcement: announcement["timestamp"],
+            reverse=True
+        )
+        return jsonify({"success": True, "exam": exam_data, "announcements": announcements})
 
     except Exception as e:
         if getenv("ENV") == "dev":
@@ -166,5 +184,3 @@ def index(request):
         print(e)
         print(dict(request.json))
         return jsonify({"success": False})
-
-    return request.path
