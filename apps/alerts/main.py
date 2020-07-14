@@ -103,12 +103,15 @@ def index(request):
                         student_data,
                         announcements,
                         received_audio,
-                        lambda x: db.collection("exam-alerts")
-                        .document(exam)
-                        .collection("announcement_audio")
-                        .document(x)
-                        .get()
-                        .to_dict()["audio"],
+                        lambda x: (
+                            db.collection("exam-alerts")
+                            .document(exam)
+                            .collection("announcement_audio")
+                            .document(x)
+                            .get()
+                            .to_dict()
+                            or {}
+                        ).get("audio"),
                     ),
                 }
             )

@@ -1,15 +1,14 @@
+import base64
 import time
 from os import getenv
 from typing import TYPE_CHECKING
+from google.cloud import texttospeech
 
 import requests
 from flask import abort
 
-from placeholder_audio import PLACEHOLDER_AUDIO
-
 if TYPE_CHECKING:
     from google.cloud import firestore
-
 
 BATCH_SIZE = 400
 assert BATCH_SIZE < 500
@@ -176,4 +175,24 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
 
 
 def generate_audio(message):
-    return PLACEHOLDER_AUDIO
+    message = "Attention students. This is an important announcement. " + message
+
+    client = texttospeech.TextToSpeechClient()
+    synthesis_input = texttospeech.SynthesisInput({"text": message})
+    voice = texttospeech.VoiceSelectionParams(
+        {
+            "name": "en-US-Wavenet-B",
+            "language_code": "en-US",
+        }
+    )
+    audio_config = texttospeech.AudioConfig(
+        {"audio_encoding": texttospeech.AudioEncoding.MP3}
+    )
+
+    audio = client.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    ).audio_content
+
+    audio = base64.b64encode(audio).decode("ascii")
+
+    return audio
