@@ -6,6 +6,7 @@ import {
 import AlertsContext from "./AlertsContext";
 import { getToken } from "./auth";
 import ConnectAlertButton from "./ConnectAlertButton";
+import CreateAnnouncement from "./CreateAnnouncement";
 import GoogleSignInButton from "./GoogleSignInButton";
 import post from "./post";
 import TimerBanner from "./TimerBanner";
@@ -19,6 +20,9 @@ export default function Alerts() {
     const [selectedExam, setSelectedExam] = useState("");
     const [examData, setExamData] = useState(null);
     const [stale, setStale] = useState(false);
+
+    const [isStaff, setIsStaff] = useState(false);
+    const [staffData, setStaffData] = useState(null);
 
     const [audioQueue, setAudioQueue] = useState([]); // pop off the next audio to play
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -99,7 +103,7 @@ export default function Alerts() {
                     </Col>
                 </Row>
                 <br />
-                {username && !examData && (
+                {username && !examData && !staffData && (
                     <Row>
                         <Col>
                             <Form>
@@ -115,11 +119,21 @@ export default function Alerts() {
                                         {examList.map((exam) => <option>{exam}</option>)}
                                     </Form.Control>
                                 </Form.Group>
+                                <Form.Group>
+                                    <Form.Check
+                                        id="staffCheckbox"
+                                        custom
+                                        type="checkbox"
+                                        label="Log in as staff"
+                                        value={isStaff}
+                                        onChange={(e) => setIsStaff(e.target.checked)}
+                                    />
+                                </Form.Group>
                             </Form>
                         </Col>
                     </Row>
                 )}
-                {selectedExam && !examData && (
+                {selectedExam && !examData && !staffData && (
                     <Row>
                         <Col>
                             <p>
@@ -132,7 +146,11 @@ export default function Alerts() {
                                 Otherwise, click the button to connect to the exam server.
                                 You can do this before the exam begins.
                             </p>
-                            <ConnectAlertButton exam={selectedExam} onReceive={setExamData} />
+                            <ConnectAlertButton
+                                exam={selectedExam}
+                                isStaff={isStaff}
+                                onReceive={isStaff ? setStaffData : setExamData}
+                            />
                         </Col>
                     </Row>
                 )}
@@ -169,13 +187,40 @@ export default function Alerts() {
                                     </ListGroup>
                                 </Card>
                             </Col>
-                            <Col>
-                                <Card>
-                                    Test
-                                </Card>
-                            </Col>
                         </Row>
                     </>
+                )}
+                {staffData && (
+                    <Row>
+                        <Col>
+                            <CreateAnnouncement
+                                key={staffData.announcements[0] && staffData.announcements[0].id}
+                                exam={selectedExam}
+                                staffData={staffData}
+                                onUpdate={setStaffData}
+                            />
+                            <br />
+                        </Col>
+                    </Row>
+                )}
+                {staffData && staffData.announcements.map(
+                    ({ canonical_question_name: questionName, message }) => (
+                        <Row>
+                            <Col>
+                                <Card>
+                                    <Card.Header>
+                                        Announcement for
+                                        {" "}
+                                        {questionName || "the overall exam"}
+                                    </Card.Header>
+                                    <Card.Body>
+                                        {message}
+                                    </Card.Body>
+                                </Card>
+                                <br />
+                            </Col>
+                        </Row>
+                    ),
                 )}
             </Container>
         </AlertsContext.Provider>
