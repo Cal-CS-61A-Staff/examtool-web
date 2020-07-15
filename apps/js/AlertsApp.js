@@ -17,7 +17,8 @@ import useTick from "./useTick";
 export default function Alerts() {
     const [username, setUsername] = useState("");
     const [examList, setExamList] = useState([]);
-    const [selectedExam, setSelectedExam] = useState("");
+    const forceSelectedExam = decodeURIComponent(window.location.pathname).replace("/", "").trim();
+    const [selectedExam, setSelectedExam] = useState(forceSelectedExam);
     const [examData, setExamData] = useState(null);
     const [stale, setStale] = useState(false);
 
@@ -103,7 +104,7 @@ export default function Alerts() {
                     </Col>
                 </Row>
                 <br />
-                {username && !examData && !staffData && (
+                {username && !examData && !staffData && !forceSelectedExam && (
                     <Row>
                         <Col>
                             <Form>
@@ -133,17 +134,23 @@ export default function Alerts() {
                         </Col>
                     </Row>
                 )}
-                {selectedExam && !examData && !staffData && (
+                {username && selectedExam && !examData && !staffData && (
                     <Row>
                         <Col>
                             <p>
                                 You have selected the exam
                                 {" "}
                                 <b>{selectedExam}</b>
-                                . If this does not look correct, please re-select your exam.
+                                .
+                                {!forceSelectedExam && (
+                                    <>
+                                        {" "}
+                                        If this does not look correct, please re-select your exam.
+                                    </>
+                                )}
                             </p>
                             <p>
-                                Otherwise, click the button to connect to the exam server.
+                                Click the button to connect to the exam server.
                                 You can do this before the exam begins.
                             </p>
                             <ConnectAlertButton

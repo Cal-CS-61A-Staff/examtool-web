@@ -58,9 +58,6 @@ def index(request):
         if request.path.endswith("main.js"):
             return main_js
 
-        if request.path == "/":
-            return main_html
-
         if request.path.endswith("list_exams"):
             return jsonify(
                 db.collection("exam-alerts")
@@ -68,6 +65,9 @@ def index(request):
                 .get()
                 .to_dict()["exam-list"]
             )
+
+        if request.path == "/" or request.json is None:
+            return main_html
 
         if request.path.endswith("upload_ok_exam"):
             process_ok_exam_upload(db, request.json["data"], request.json["secret"])

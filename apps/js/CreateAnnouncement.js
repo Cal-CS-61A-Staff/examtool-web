@@ -97,7 +97,7 @@ export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
                     <Form.Group>
                         <LoadingButton
                             loading={isLoading}
-                            disabled={isLoading || offset == null}
+                            disabled={isLoading || (offset == null && referencePoint !== "immediate")}
                             onClick={submit}
                         >
                             Send
