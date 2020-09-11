@@ -151,7 +151,8 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
             event = student_data
 
         if announcement["type"] == "immediate":
-            include_it(announcement["timestamp"])
+            if request_time < student_data["end_time"] + 15 * 60:
+                include_it(announcement["timestamp"])
         elif announcement["type"] == "scheduled":
             threshold = (
                 event["start_time"]
