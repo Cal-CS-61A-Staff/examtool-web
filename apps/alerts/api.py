@@ -119,9 +119,6 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
     Immediate announcements only need a message. If no question name is provided, the announcement will be
     made relative to the exam start/end, otherwise it will be relative to the question
     when that question starts / ends.
-
-    Any instances of the `canonical_question_name` will be replaced with the `student_question_name` when the
-    announcement is sent to students.
     """
     to_send = []
     request_time = time.time()
@@ -134,35 +131,34 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
                     "id": announcement_id,
                     "time": time,
                     "message": announcement["message"],
+                    "question": announcement.get("question", "Overall Exam"),
                 }
             )
             if received_audio is not None and announcement_id not in received_audio:
                 to_send[-1]["audio"] = get_audio(announcement_id)
 
+        question_name = announcement.get("canonical_question_name")
+        if question_name:
+            for question in student_data["questions"]:
+                if question["canonical_question_name"] == question_name:
+                    event = question
+                    announcement["question"] = question["student_question_name"]
+                    break
+            else:
+                # student did not receive this question
+                continue
+        else:
+            event = student_data
+
         if announcement["type"] == "immediate":
             include_it(announcement["timestamp"])
         elif announcement["type"] == "scheduled":
-            question_name = announcement.get("canonical_question_name")
-            if question_name:
-                for question in student_data["questions"]:
-                    if question["canonical_question_name"] == question_name:
-                        event = question
-                        announcement["message"] = announcement["message"].replace(
-                            question_name, question["student_question_name"]
-                        )
-                        break
-                else:
-                    # student did not receive this question
-                    continue
-            else:
-                event = student_data
-
             threshold = (
                 event["start_time"]
                 if announcement["base"] == "start"
                 else event["end_time"]
             )
-            threshold += announcement["offset"]
+            threshold += int(announcement["offset"])
 
             if request_time >= threshold:
                 include_it(threshold)

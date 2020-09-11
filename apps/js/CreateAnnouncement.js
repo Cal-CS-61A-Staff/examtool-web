@@ -24,7 +24,7 @@ export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
                     type: referencePoint === "immediate" ? "immediate" : "scheduled",
                     canonical_question_name: question === "Overall Exam" ? null : question,
                     base: referencePoint,
-                    offset,
+                    offset: Number.parseInt(offset, 10),
                     message,
                 },
             });

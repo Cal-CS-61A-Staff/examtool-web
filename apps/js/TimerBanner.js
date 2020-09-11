@@ -14,19 +14,12 @@ export default function TimerBanner() {
             ? timeDeltaString(nextQuestion.startTime - time)
             : "Exam ended!";
 
-    // eslint-disable-next-line no-nested-ternary
-    const nextString = currQuestion != null
-        ? `You are on ${currQuestion.questionName}`
-        : nextQuestion != null
-            ? `Next question is ${nextQuestion.questionName}`
-            : "No further questions.";
 
     return (
         <Jumbotron>
             <h1 className="display-1 text-center">
                 {timeString}
             </h1>
-            <h2 className="text-center">{nextString}</h2>
         </Jumbotron>
     );
 }

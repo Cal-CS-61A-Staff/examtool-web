@@ -178,8 +178,16 @@ export default function Alerts() {
                                     <ListGroup variant="flush">
                                         {
                                             examData.announcements.map(
-                                                ({ id, message, time: announcementTime }) => (
+                                                ({
+                                                    id, message, question, time: announcementTime,
+                                                }) => (
                                                     <ListGroup.Item key={id} style={{ whiteSpace: "pre-wrap" }}>
+                                                        <b>
+                                                            [
+                                                            {question}
+                                                            ]
+                                                        </b>
+                                                        {" "}
                                                         {message}
                                                         {" "}
                                                         (

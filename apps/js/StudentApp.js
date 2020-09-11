@@ -91,7 +91,7 @@ export default function StudentApp() {
                 <br />
                 <Row>
                     <Col>
-                        <h1>Final Exam</h1>
+                        <h1>Midterm</h1>
                     </Col>
                 </Row>
                 <Row>

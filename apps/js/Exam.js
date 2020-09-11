@@ -20,7 +20,7 @@ export default function Exam({ groups, publicGroup, ended }) {
             blockquote.classList.add("blockquote");
         }
         typeset();
-    }, [groups]);
+    }, [groups, publicGroup]);
 
     const stickyStyle = {
         position: "sticky",
