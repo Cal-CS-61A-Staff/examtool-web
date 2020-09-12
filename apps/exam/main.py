@@ -82,13 +82,13 @@ def index(request):
         if request.path.endswith("main.js"):
             return main_js
 
-        if request.path == "/":
-            return main_html
-
         if request.path.endswith("list_exams"):
             return jsonify(
                 db.collection("exams").document("all").get().to_dict()["exam-list"]
             )
+
+        if request.path == "/" or request.json is None:
+            return main_html
 
         if request.path.endswith("get_exam"):
             exam = request.json["exam"]

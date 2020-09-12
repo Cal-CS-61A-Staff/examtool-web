@@ -18,7 +18,9 @@ export default function StudentApp() {
 
     const [examList, setExamList] = useState([]);
 
-    const [selectedExam, setSelectedExam] = useState("");
+    const forceSelectedExam = decodeURIComponent(window.location.pathname).replace("/", "").trim();
+
+    const [selectedExam, setSelectedExam] = useState(forceSelectedExam);
 
     const [publicGroup, setPublicGroup] = useState(null);
 
@@ -101,9 +103,9 @@ export default function StudentApp() {
                         />
                     </Col>
                 </Row>
-                {(username && !encryptedGroups) && (
+                <br />
+                {(username && !encryptedGroups && !forceSelectedExam) && (
                     <>
-                        <br />
                         <Row>
                             <Col>
                                 <Form>
@@ -131,10 +133,17 @@ export default function StudentApp() {
                                 You have selected the exam
                                 {" "}
                                 <b>{selectedExam}</b>
-                                . If this does not look correct, please re-select your exam.
+                                .
+                                {" "}
+                                {!forceSelectedExam && (
+                                    <>
+                                        {" "}
+                                        If this does not look correct, please re-select your exam.
+                                    </>
+                                )}
                             </p>
                             <p>
-                                Otherwise, click the button to generate your exam.
+                                Click the button to generate your exam.
                                 You can do this before the exam starts.
                             </p>
                             <ExamDownloader

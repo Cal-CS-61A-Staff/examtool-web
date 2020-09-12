@@ -122,6 +122,10 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
     """
     to_send = []
     request_time = time.time()
+
+    if request_time > student_data["end_time"] + 45 * 60:
+        return []
+
     for announcement in announcements:
         announcement_id, announcement = announcement.id, announcement.to_dict()
 
@@ -151,8 +155,7 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
             event = student_data
 
         if announcement["type"] == "immediate":
-            if request_time < student_data["end_time"] + 15 * 60:
-                include_it(announcement["timestamp"])
+            include_it(announcement["timestamp"])
         elif announcement["type"] == "scheduled":
             threshold = (
                 event["start_time"]
