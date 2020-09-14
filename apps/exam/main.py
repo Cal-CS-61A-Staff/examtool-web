@@ -146,6 +146,15 @@ def index(request):
 
             db.collection(exam).document(email).set({question_id: value}, merge=True)
             return jsonify({"success": True})
+
+        if getenv("ENV") == "dev" and request.path.endswith("alerts/fetch_data"):
+            return jsonify({
+                "success": True,
+                "announcements": [
+                    {'id': "SNlddetyVazQiMYaNL2w", 'message': "this is cool", 'question': "1.2.", 'time': 0}
+                ] * 100
+            })
+
     except:
         print(dict(request.json))
         return jsonify({"success": False})

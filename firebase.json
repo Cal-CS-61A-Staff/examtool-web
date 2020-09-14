@@ -17,6 +17,14 @@
         "function": "exam-admin"
       },
       {
+        "source": "/alerts/**",
+        "function": "exam-alerts"
+      },
+      {
+        "source": "/alerts/",
+        "function": "exam-alerts"
+      },
+      {
         "source": "/**",
         "function": "exam-server"
       }

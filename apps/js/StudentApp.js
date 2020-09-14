@@ -3,7 +3,9 @@ import {
     Col, Container, Form, Navbar, Row,
 } from "react-bootstrap";
 import EndModal from "./EndModal";
+import ErrorBoundary from "./ErrorBoundary";
 import Exam from "./Exam";
+import ExamAlerts from "./ExamAlerts";
 import ExamContext from "./ExamContext";
 import InternetDown from "./InternetDown";
 import NavbarWarnings from "./NavbarWarnings";
@@ -216,6 +218,9 @@ export default function StudentApp() {
                 }}
                 >
                     <Exam publicGroup={publicGroup} groups={decryptedGroups} ended={examEnded} />
+                    <ErrorBoundary>
+                        {encryptedGroups && <ExamAlerts exam={selectedExam} />}
+                    </ErrorBoundary>
                 </ExamContext.Provider>
                 {examLocked && <EndModal />}
                 {showInternetError && <InternetDown onHide={() => setShowInternetError(false)} /> }
