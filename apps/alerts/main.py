@@ -159,7 +159,7 @@ def index(request):
                 .collection("announcement_audio"),
             )
         elif request.path.endswith("delete_announcement"):
-            target = request.path["id"]
+            target = request.json["id"]
             db.collection("exam-alerts").document(exam).collection("announcements").document(target).delete()
         else:
             abort(404)

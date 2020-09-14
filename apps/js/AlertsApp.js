@@ -3,6 +3,7 @@ import {
     Badge, Card,
     Col, Container, Form, ListGroup, Row,
 } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 import AlertsContext from "./AlertsContext";
 import { getToken } from "./auth";
 import ConnectAlertButton from "./ConnectAlertButton";
@@ -86,6 +87,18 @@ export default function Alerts() {
             }
         }
     }, 10000);
+
+    const deleteAnnouncement = (id) => {
+        (async () => {
+            const resp = await post("/delete_announcement", { id, exam: selectedExam });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.success) {
+                    setStaffData(data);
+                }
+            }
+        })();
+    };
 
     return (
         <AlertsContext.Provider value={{ time, examData, stale }}>
@@ -219,14 +232,26 @@ export default function Alerts() {
                     </Row>
                 )}
                 {staffData && staffData.announcements.map(
-                    ({ canonical_question_name: questionName, message }) => (
-                        <Row>
+                    ({
+                        base, id, offset, canonical_question_name: questionName, message,
+                    }) => (
+                        <Row key={id}>
                             <Col>
                                 <Card>
                                     <Card.Header>
                                         Announcement for
                                         {" "}
                                         {questionName || "the overall exam"}
+                                        {" "}
+                                        {offset && `(${base}+${offset})`}
+                                        <Button
+                                            style={{ float: "right" }}
+                                            variant="primary"
+                                            onClick={() => deleteAnnouncement(id)}
+                                            size="sm"
+                                        >
+                                            Delete
+                                        </Button>
                                     </Card.Header>
                                     <Card.Body>
                                         {message}
