@@ -97,14 +97,15 @@ def index(request):
                 {
                     "success": True,
                     "exam_type": "ok-exam",
-                    "questions": [
-                        {
-                            "questionName": question["student_question_name"],
-                            "startTime": question["start_time"],
-                            "endTime": question["end_time"],
-                        }
-                        for question in student_data["questions"]
-                    ],
+                    "questions": [],
+                    # "questions": [
+                    #     {
+                    #         "questionName": question["student_question_name"],
+                    #         "startTime": question["start_time"],
+                    #         "endTime": question["end_time"],
+                    #     }
+                    #     for question in student_data["questions"]
+                    # ],
                     "announcements": get_announcements(
                         student_data,
                         announcements,
