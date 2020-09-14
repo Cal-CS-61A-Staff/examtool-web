@@ -126,7 +126,7 @@ export default function StudentApp() {
                         </Row>
                     </>
                 )}
-                {(selectedExam && !encryptedGroups) && (
+                {(username && selectedExam && !encryptedGroups) && (
                     <Row>
                         <Col>
                             <p>

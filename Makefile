@@ -1,4 +1,4 @@
-export PROJECT_ID=banded-syntax-252420
+export PROJECT_ID=cs61a-140900
 
 .PHONY: exam-deploy
 exam-deploy:
