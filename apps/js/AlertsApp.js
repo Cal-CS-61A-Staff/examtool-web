@@ -90,7 +90,7 @@ export default function Alerts() {
 
     const deleteAnnouncement = (id) => {
         (async () => {
-            const resp = await post("/delete_announcement", { id, exam: selectedExam });
+            const resp = await post("/delete_announcement", { id, exam: selectedExam, token: getToken() });
             if (resp.ok) {
                 const data = await resp.json();
                 if (data.success) {
