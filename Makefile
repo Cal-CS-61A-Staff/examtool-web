@@ -14,7 +14,7 @@ exam-dev:
 
 .PHONY: admin-deploy
 admin-deploy:
-	cd apps/admin && gcloud functions deploy exam-admin --runtime python37 --trigger-http --entry-point index
+	cd apps/admin && gcloud functions deploy exam-admin --runtime python37 --trigger-http --entry-point index --timeout 500
 
 .PHONY: admin-dev
 admin-dev:
@@ -40,7 +40,7 @@ write-deploy:
 
 .PHONY: alerts-deploy
 alerts-deploy:
-	cd apps/alerts && gcloud functions deploy exam-alerts --runtime python37 --trigger-http --entry-point index
+	cd apps/alerts && gcloud functions deploy exam-alerts --runtime python37 --trigger-http --entry-point index --timeout 500
 
 .PHONY: alerts-dev
 alerts-dev:
