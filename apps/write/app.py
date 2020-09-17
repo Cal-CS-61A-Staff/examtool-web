@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Flask, send_from_directory, request, jsonify, make_response
+from flask import Flask, abort, send_from_directory, request, jsonify, make_response
 
 from examtool.api.convert import convert_str
 from examtool.api.gen_latex import render_latex
@@ -21,6 +21,7 @@ def convert():
 
 @app.route("/render", methods=["POST"])
 def render():
+    abort(401)  # PDF compilation is unsafe
     exam = json.loads(request.form["exam"])
     with render_latex(exam) as pdf:
         response = make_response(pdf)

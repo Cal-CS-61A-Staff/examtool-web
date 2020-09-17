@@ -45,6 +45,7 @@ export default function StaffApp() {
         }
     };
 
+    // eslint-disable-next-line no-unused-vars
     const renderPDF = () => {
         const form = document.createElement("form");
         form.action = "/render";
@@ -72,7 +73,7 @@ export default function StaffApp() {
                     </LoadingButton>
                     <ButtonGroup style={{ marginLeft: "10px" }} aria-label="Basic example">
                         <Button variant="secondary" onClick={() => setMode("live")}>Live Exam</Button>
-                        <Button variant="secondary" onClick={renderPDF}>PDF</Button>
+                        {/* <Button variant="secondary" onClick={renderPDF}>PDF</Button> */}
                         <Button variant="secondary" onClick={() => setMode("json")}>JSON</Button>
                     </ButtonGroup>
                     <FailText text={failText} />
