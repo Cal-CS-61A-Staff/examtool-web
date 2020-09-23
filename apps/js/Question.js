@@ -108,7 +108,13 @@ export default function Question({
     } else if (question.type === "short_answer") {
         contents = (
             <InputGroup className="mb-3">
-                <FormControl value={value} onChange={(e) => { setValue(e.target.value); }} />
+                <FormControl
+                    value={value}
+                    onChange={(e) => {
+                        setValue(e.target.value);
+                    }}
+                    onPaste={submit}
+                />
             </InputGroup>
         );
     } else if (question.type === "short_code_answer") {
@@ -120,6 +126,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
+                    onPaste={submit}
                 />
             </InputGroup>
         );
@@ -133,6 +140,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
+                    onPaste={submit}
                 />
             </InputGroup>
         );
@@ -158,6 +166,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
+                    onPaste={submit}
                 />
             </InputGroup>
         );
