@@ -62,6 +62,44 @@ export default function Question({
         }
     }, [moveCursor.current]);
 
+    const submitValue = async (val, savedVal) => {
+        if (val === savedVal || saving) {
+            return;
+        }
+        setSaving(true);
+        try {
+            const ret = await post("submit_question", {
+                id: question.id,
+                value: val,
+                token: getToken(),
+                exam: examContext.exam,
+            });
+            setSaving(false);
+            if (!ret.ok) {
+                setFailText("Server failed to respond, please try again.");
+                examContext.onInternetError();
+                return;
+            }
+            try {
+                const data = await ret.json();
+                if (!data.success) {
+                    setFailText("Server responded but failed to save, please refresh and try again.");
+                    examContext.onInternetError();
+                } else {
+                    setSavedValue(val);
+                    setFailText("");
+                }
+            } catch {
+                setFailText("Server returned invalid JSON. Please try again.");
+                examContext.onInternetError();
+            }
+        } catch {
+            setSaving(false);
+            setFailText("Unable to reach server, your network may have issues.");
+            examContext.onInternetError();
+        }
+    };
+
     const handlePaste = (e) => {
         e.preventDefault();
         const { target } = e;
@@ -183,44 +221,6 @@ export default function Question({
             </InputGroup>
         );
     }
-
-    const submitValue = async (val, savedVal) => {
-        if (val === savedVal || saving) {
-            return;
-        }
-        setSaving(true);
-        try {
-            const ret = await post("submit_question", {
-                id: question.id,
-                value: val,
-                token: getToken(),
-                exam: examContext.exam,
-            });
-            setSaving(false);
-            if (!ret.ok) {
-                setFailText("Server failed to respond, please try again.");
-                examContext.onInternetError();
-                return;
-            }
-            try {
-                const data = await ret.json();
-                if (!data.success) {
-                    setFailText("Server responded but failed to save, please refresh and try again.");
-                    examContext.onInternetError();
-                } else {
-                    setSavedValue(val);
-                    setFailText("");
-                }
-            } catch {
-                setFailText("Server returned invalid JSON. Please try again.");
-                examContext.onInternetError();
-            }
-        } catch {
-            setSaving(false);
-            setFailText("Unable to reach server, your network may have issues.");
-            examContext.onInternetError();
-        }
-    };
 
     const submit = () => submitValue(value, savedValue);
 
