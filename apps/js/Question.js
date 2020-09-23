@@ -62,6 +62,18 @@ export default function Question({
         }
     }, [moveCursor.current]);
 
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const { target } = e;
+        const start = target.selectionStart;
+        const end = target.selectionEnd;
+        const paste = e.clipboardData.getData('text');
+        const newValue = `${value.substring(0, start)}${e.clipboardData.getData('text')}${value.substring(end)}`;
+        setValue(newValue);
+        submitValue(newValue, savedValue);
+        moveCursor.current = { target, pos: start + paste.length };
+    }
+
     let contents;
     if (question.type === "multiple_choice") {
         contents = (
@@ -113,7 +125,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
-                    onPaste={submit}
+                    onPaste={handlePaste}
                 />
             </InputGroup>
         );
@@ -126,7 +138,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
-                    onPaste={submit}
+                    onPaste={handlePaste}
                 />
             </InputGroup>
         );
@@ -140,7 +152,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
-                    onPaste={submit}
+                    onPaste={handlePaste}
                 />
             </InputGroup>
         );
@@ -166,7 +178,7 @@ export default function Question({
                     onChange={(e) => {
                         setValue(e.target.value);
                     }}
-                    onPaste={submit}
+                    onPaste={handlePaste}
                 />
             </InputGroup>
         );
