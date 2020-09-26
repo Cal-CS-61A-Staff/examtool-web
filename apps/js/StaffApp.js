@@ -3,6 +3,7 @@ import {
     Button,
     ButtonGroup,
     Col, Container, Row,
+    Form,
 } from "react-bootstrap";
 
 import { edit } from "ace";
@@ -18,6 +19,7 @@ export default function StaffApp() {
     const [failText, setFailText] = useState("");
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState("live");
+    const [draft, setDraft] = useState(false);
 
     const editorRef = useRef();
 
@@ -30,7 +32,7 @@ export default function StaffApp() {
     const generate = async () => {
         const text = editorRef.current.getValue();
         setLoading(true);
-        const ret = await post("convert", { text }, true);
+        const ret = await post("convert", { text, draft }, true);
         setLoading(false);
         if (!ret.ok) {
             return;
@@ -76,6 +78,17 @@ export default function StaffApp() {
                         {/* <Button variant="secondary" onClick={renderPDF}>PDF</Button> */}
                         <Button variant="secondary" onClick={() => setMode("json")}>JSON</Button>
                     </ButtonGroup>
+                    <span className="ml-3">
+                        <Form.Check
+                            id="draftCheckbox"
+                            checked={draft}
+                            onChange={(e) => setDraft(e.target.checked)}
+                            custom
+                            inline
+                            type="checkbox"
+                            label="Draft mode (fast, but less accurate)"
+                        />
+                    </span>
                     <FailText text={failText} />
                     <br />
                     <div style={{

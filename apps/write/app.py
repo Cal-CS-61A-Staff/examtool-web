@@ -12,9 +12,10 @@ app = Flask(__name__, static_folder="static", static_url_path="")
 @app.route("/convert", methods=["POST"])
 def convert():
     text = request.json["text"]
+    draft = request.json.get("draft", False)
     text = text.replace("\r", "")
     try:
-        return jsonify({"success": True, "examJSON": convert_str(text)})
+        return jsonify({"success": True, "examJSON": convert_str(text, draft=draft)})
     except SyntaxError as e:
         return jsonify({"success": False, "error": str(e)})
 
