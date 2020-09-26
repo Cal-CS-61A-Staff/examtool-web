@@ -132,10 +132,11 @@ def index(request):
             exam = request.json["exam"]
             question_id = request.json["id"]
             value = request.json["value"]
+            sent_time = request.json.get("sentTime", 0)
             email = get_email(request)
 
             db.collection(exam).document(email).collection("log").document().set(
-                {"timestamp": time.time(), question_id: value}
+                {"timestamp": time.time(), "sentTime": sent_time, question_id: value}
             )
 
             deadline = get_deadline(exam, email, db)
@@ -143,6 +144,19 @@ def index(request):
             if deadline + 120 < time.time():
                 abort(401)
                 return
+
+            recency_ref = db.collection(exam).document(email).collection("recency").document(question_id)
+            try:
+                recency = recency_ref.get().to_dict() or {}
+            except NotFound:
+                recency = {}
+
+            if sent_time <= recency.get("sentTime", -1):
+                # the current request was delayed and is now out of date
+                abort(409)
+                return
+
+            recency_ref.set({"sentTime": sent_time})
 
             db.collection(exam).document(email).set({question_id: value}, merge=True)
             return jsonify({"success": True})

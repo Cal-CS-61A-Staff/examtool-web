@@ -172,6 +172,7 @@ export default function Question({
             const ret = await post("submit_question", {
                 id: question.id,
                 value: val,
+                sentTime: (new Date()).getTime(),
                 token: getToken(),
                 exam: examContext.exam,
             });
