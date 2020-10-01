@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Modal } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Toast from "react-bootstrap/Toast";
 import { getToken } from "./auth";
@@ -10,6 +11,7 @@ import useTick from "./useTick";
 export default function ExamAlerts({ exam }) {
     const [examData, setExamData] = useState(null);
     const [stale, setStale] = useState(false);
+    const [fail, setFail] = useState(false);
 
     const [audioQueue, setAudioQueue] = useState([]); // pop off the next audio to play
     const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -41,12 +43,11 @@ export default function ExamAlerts({ exam }) {
                 const data = await resp.json();
                 if (data.success) {
                     setExamData(data);
-                    setStale(false);
                 } else {
-                    setStale(true);
+                    setFail(true);
                 }
             } else {
-                setStale(true);
+                setFail(true);
             }
         })();
     }, []);
@@ -130,6 +131,18 @@ export default function ExamAlerts({ exam }) {
                     {examData ? "" : " (Loading...)"}
                 </Button>
             </div>
+            {fail && (
+                <Modal show>
+                    <Modal.Header>
+                        <Modal.Title>Network Connection Lost!</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        The tool was unable to fetch announcements from the server.
+                        Please refresh and try again. If this error persists, contact your
+                        course staff.
+                    </Modal.Body>
+                </Modal>
+            )}
         </>
     );
 }
