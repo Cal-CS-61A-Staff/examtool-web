@@ -144,7 +144,7 @@ def get_announcements(student_data, announcements, received_audio, get_audio):
         question_name = announcement.get("canonical_question_name")
         if question_name:
             for question in student_data["questions"]:
-                if question["canonical_question_name"] == question_name:
+                if question["canonical_question_name"].strip() == question_name.strip():
                     event = question
                     announcement["question"] = question["student_question_name"]
                     break
