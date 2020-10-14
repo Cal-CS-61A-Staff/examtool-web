@@ -119,7 +119,7 @@ def index(request):
                     "publicGroup": exam_data["public"],
                     "privateGroups": (
                         Fernet(exam_data["secret"])
-                        .encrypt(json.dumps(exam_data["groups"]).encode("ascii"))
+                        .encrypt_at_time(json.dumps(exam_data["groups"]).encode("ascii"), 0)
                         .decode("ascii")
                     ),
                     "answers": answers,
@@ -151,7 +151,8 @@ def index(request):
             except NotFound:
                 recency = {}
 
-            if sent_time <= recency.get("sentTime", -1):
+            recent_time = recency.get("sentTime", -1)
+            if recent_time - 300 <= sent_time <= recent_time:
                 # the current request was delayed and is now out of date
                 abort(409)
                 return
@@ -170,6 +171,7 @@ def index(request):
             })
 
     except:
+        raise
         print(dict(request.json))
         return jsonify({"success": False})
 
