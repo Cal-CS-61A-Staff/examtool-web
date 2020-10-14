@@ -98,6 +98,8 @@ def index(request):
                     "success": True,
                     "exam_type": "ok-exam",
                     "questions": [],
+                    "startTime": student_data["start_time"],
+                    "endTime": student_data["end_time"],
                     # "questions": [
                     #     {
                     #         "questionName": question["student_question_name"],

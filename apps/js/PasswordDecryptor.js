@@ -18,7 +18,8 @@ export default function PasswordDecryptor({ encryptedExam, onDecrypt }) {
                 secret, token: encryptedExam, ttl: 0,
             });
             onDecrypt(JSON.parse(token.decode()));
-        } catch {
+        } catch (e) {
+            console.error(e);
             setFailText("Wrong password! (or other decryption error)");
         }
     };
