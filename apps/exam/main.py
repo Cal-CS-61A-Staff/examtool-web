@@ -171,7 +171,6 @@ def index(request):
             })
 
     except:
-        raise
         print(dict(request.json))
         return jsonify({"success": False})
 
