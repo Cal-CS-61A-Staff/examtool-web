@@ -7,6 +7,8 @@ import post from "./post";
 
 export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
     const [message, setMessage] = useState("");
+    const [overrideMessage, setOverrideMessage] = useState(false);
+    const [audioMessage, setAudioMessage] = useState("");
     const [question, setQuestion] = useState("Overall Exam");
     const [referencePoint, setReferencePoint] = useState("immediate");
     const [offset, setOffset] = useState(null);
@@ -25,6 +27,7 @@ export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
                     canonical_question_name: question === "Overall Exam" ? null : question,
                     base: referencePoint,
                     offset: Number.parseInt(offset, 10),
+                    spoken_message: overrideMessage ? audioMessage.trim() : undefined,
                     message,
                 },
             });
@@ -57,6 +60,17 @@ export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
                             onChange={(e) => setMessage(e.target.value)}
                         />
                     </Form.Group>
+                    {overrideMessage ? (
+                        <Form.Group>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={audioMessage}
+                                placeholder="Override the associated spoken audio message."
+                                onChange={(e) => setAudioMessage(e.target.value)}
+                            />
+                        </Form.Group>
+                    ) : null}
                     <Form.Group>
                         <Form.Control
                             as="select"
@@ -94,6 +108,17 @@ export default function CreateAnnouncement({ exam, staffData, onUpdate }) {
                             />
                         </Form.Group>
                     )}
+                    <Form.Group>
+                        <Form.Check
+                            custom
+                            checked={overrideMessage}
+                            name={question.id}
+                            type="checkbox"
+                            label="Override audio message"
+                            id="audioOverrideCheckbox"
+                            onChange={(e) => setOverrideMessage(e.target.checked)}
+                        />
+                    </Form.Group>
                     <Form.Group>
                         <LoadingButton
                             loading={isLoading}

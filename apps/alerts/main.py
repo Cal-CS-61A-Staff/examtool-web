@@ -126,7 +126,11 @@ def index(request):
             )
 
         # only staff endpoints from here onwards
-        email = get_email_from_secret(request.json["secret"]) if "secret" in request.json else get_email(request)
+        email = (
+            get_email_from_secret(request.json["secret"])
+            if "secret" in request.json
+            else get_email(request)
+        )
         if not is_admin(email, course):
             abort(401)
 
@@ -142,13 +146,14 @@ def index(request):
                 .document()
             )
             ref.set(announcement)
-            spoken_message = (
-                announcement.get("spoken_message") or announcement["message"]
-            )
-            audio = generate_audio(spoken_message)
-            db.collection("exam-alerts").document(exam).collection(
-                "announcement_audio"
-            ).document(ref.id).set({"audio": audio})
+            spoken_message = announcement.get("spoken_message", announcement["message"])
+
+            if spoken_message:
+                audio = generate_audio(spoken_message)
+                db.collection("exam-alerts").document(exam).collection(
+                    "announcement_audio"
+                ).document(ref.id).set({"audio": audio})
+
         elif request.path.endswith("clear_announcements"):
             clear_collection(
                 db,
@@ -162,7 +167,9 @@ def index(request):
             )
         elif request.path.endswith("delete_announcement"):
             target = request.json["id"]
-            db.collection("exam-alerts").document(exam).collection("announcements").document(target).delete()
+            db.collection("exam-alerts").document(exam).collection(
+                "announcements"
+            ).document(target).delete()
         else:
             abort(404)
 
@@ -177,9 +184,11 @@ def index(request):
                 .stream()
             ),
             key=lambda announcement: announcement["timestamp"],
-            reverse=True
+            reverse=True,
         )
-        return jsonify({"success": True, "exam": exam_data, "announcements": announcements})
+        return jsonify(
+            {"success": True, "exam": exam_data, "announcements": announcements}
+        )
 
     except Exception as e:
         if getenv("ENV") == "dev":

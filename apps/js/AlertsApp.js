@@ -233,7 +233,8 @@ export default function Alerts() {
                 )}
                 {staffData && staffData.announcements.map(
                     ({
-                        base, id, offset, canonical_question_name: questionName, message,
+                        base, id, offset, canonical_question_name: questionName,
+                        message, spoken_message: spokenMessage,
                     }) => (
                         <Row key={id}>
                             <Col>
@@ -255,6 +256,16 @@ export default function Alerts() {
                                     </Card.Header>
                                     <Card.Body>
                                         {message}
+                                        {/* eslint-disable-next-line no-nested-ternary */}
+                                        {spokenMessage === "" ? <i> [Silent]</i> : spokenMessage == null ? null : (
+                                            <i>
+                                                {" "}
+                                                [Audio Override:
+                                                {" "}
+                                                {spokenMessage}
+                                                ]
+                                            </i>
+                                        )}
                                     </Card.Body>
                                 </Card>
                                 <br />
